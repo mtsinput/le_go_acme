@@ -20,4 +20,4 @@ sleep $pause
 
 done &
 
-while true; do sleep 60 ; echo "Waiting for next renew run..."; done
+while true; do sleep 3600 ; echo "Waiting for next renew run..."; done
