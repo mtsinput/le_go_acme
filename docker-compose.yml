@@ -1,0 +1,33 @@
+version: '3.4'
+
+services:
+  lego-obtain:
+    image: goacme/lego:latest
+    environment:
+      - HETZNER_API_KEY_FILE=hetzner.env
+    command: --accept-tos --email="sample@test.com" --domains="example.com" --domains="*.example.com" --path="/certs" --dns="hetzner" run
+    volumes:
+      - cert_store:/certs
+      - type: bind
+        source: ./hetzner.env
+        target: /hetzner.env
+        read_only: true
+    restart: 'no'
+
+  lego-renew:
+    image: wdmaster/le_go_acme:latest #goacme/lego:latest
+    environment:
+      - HETZNER_API_KEY_FILE=hetzner.env
+      - OBTAIN_PERIOD_HOURS=24
+    command: --email="sample@test.com" --domains="example.com" --domains="*.example.com" --path="/certs" --dns="hetzner" renew --days 60
+    volumes:
+      - cert_store:/certs
+      - type: bind
+        source: ./hetzner.env
+        target: /hetzner.env
+        read_only: true
+    restart: 'no' # unless-stopped
+
+volumes:
+  cert_store:
+    name: cert_store
