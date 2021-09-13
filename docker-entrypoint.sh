@@ -1,23 +1,26 @@
 #!/bin/bash
 
 set -e
+
 legobin=/usr/bin/lego
 
 >&2 echo running: "$legobin" "$@"
-let pause=$OBTAIN_PERIOD_HOURS*60*60
->&2 echo "Will be wait for $pause seconds between renew"
+>&2 echo "Will be wait for $OBTAIN_PERIOD_HOURS hours between renew"
+counter=0
 
-#set -m
-
-while true
-
-do
-
->&2 echo "Try to obtain certificate"
->&2 exec "$legobin" "$@"
-
-sleep $pause
-
+while [[ true ]];
+do sleep 3600;
+  if [[ "$counter" == "$OBTAIN_PERIOD_HOURS" ]]; 
+  then
+	echo "Start obtain certificate" &&
+	exec "$legobin" "$@" &
+	let counter=0 &&
+	echo "Finish obtain certificate"
+  else
+	let counter=$counter+1 &&
+	let remainh=$OBTAIN_PERIOD_HOURS-$counter &&
+	echo "Next renew after $remainh hours"
+  fi;
 done &
 
-while true; do sleep 3600 ; echo "Waiting for next renew run..."; done
+while [[ true ]]; do sleep 3600 ; echo "Waiting for next renew run..."; done
